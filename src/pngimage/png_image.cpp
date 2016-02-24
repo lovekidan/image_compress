@@ -24,6 +24,14 @@ inline static unsigned long int t_ntohl(unsigned long int n){
 	return checkCPUendian() ? n : BigLittleSwap32(n);
 }
 
+PngImage::PngImage():rows_buf(NULL) {
+	release();
+}
+
+PngImage::~PngImage() {
+	release();
+}
+
 size_t PngImage::npTc_block::get_npTc_size(){
 	return (sizeof(char) * 4 + sizeof(unsigned int)*(3 + numColors) + sizeof(int)*(4 + numXDivs + numYDivs));
 }

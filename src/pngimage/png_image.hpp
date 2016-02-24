@@ -5,11 +5,10 @@
 #include "libpng/png.h"
 #include "zlib/zlib.h"
 
-class PngImage{
+class PngImage {
 public:
-    PngImage() :rows_buf(NULL){ release(); }
-    ~PngImage(){ release(); }
-
+     PngImage();
+    ~PngImage();
     bool read_png(const std::string &fileName);
     bool read_png_from_Mat(const cv::Mat &mat);
     bool write_png(const std::string &fileName);

@@ -1,4 +1,15 @@
+# aux source file as vars
 AUX_SOURCE_DIRECTORY(. SRC_ROOT_DIR)
 AUX_SOURCE_DIRECTORY(/pngimage SRC_PNGIMAGE_DIR)
-ADD_EXECUTABLE(image_compress ${SRC_ROOT_DIR} ${SRC_PNGIMAGE_DIR})
-#target_link_libraries(linux_awesome_proj linux_awesome_proj_lib ${LIBRARY_OUTPUT_PATH}/liboutside.a)
+AUX_SOURCE_DIRECTORY(/zlib SRC_ZLIB_DIR)
+AUX_SOURCE_DIRECTORY(/libpng SRC_LIBPNG_DIR)
+
+ADD_EXECUTABLE(image_compress ${SRC_ROOT_DIR} ${SRC_ZLIB_DIR} ${SRC_LIBPNG_DIR} ${SRC_PNGIMAGE_DIR})
+
+
+# find opencv
+FIND_PACKAGE(OpenCV REQUIRED)
+
+message("OpenCV_LIBS=${OpenCV_LIBS}")
+
+TARGET_LINK_LIBRARIES(image_compress ${OpenCV_LIBS})
