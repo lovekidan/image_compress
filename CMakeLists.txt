@@ -14,11 +14,9 @@ set(LIBRARY_OUTPUT_PATH ${IMAGE_COMPRESS_SOURCE_DIR}/lib)
 include_directories(
 /usr/local/include/opencv2
 ${IMAGE_COMPRESS_SOURCE_DIR}/src/
+${IMAGE_COMPRESS_SOURCE_DIR}/src/zlib/
 ${IMAGE_COMPRESS_SOURCE_DIR}/include/
 )
 
 # add sub dir
 ADD_SUBDIRECTORY(src)
-
-# find opencv
-FIND_PACKAGE(OpenCV REQUIRED)
