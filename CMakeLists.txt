@@ -5,18 +5,21 @@ PROJECT(IMAGE_COMPRESS C CXX)
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 # set bin dir
-set(EXECUTABLE_OUTPUT_PATH ${IMAGE_COMPRESS_SOURCE_DIR}/bin)
+SET(EXECUTABLE_OUTPUT_PATH ${IMAGE_COMPRESS_SOURCE_DIR}/bin)
 
 # set lib dir
-set(LIBRARY_OUTPUT_PATH ${IMAGE_COMPRESS_SOURCE_DIR}/lib)
+SET(LIBRARY_OUTPUT_PATH ${IMAGE_COMPRESS_SOURCE_DIR}/lib)
 
-# add include dirs
-include_directories(
+# set include dirs
+INCLUDE_DIRECTORIES(
 /usr/local/include/opencv2
 ${IMAGE_COMPRESS_SOURCE_DIR}/src/
 ${IMAGE_COMPRESS_SOURCE_DIR}/src/zlib/
 ${IMAGE_COMPRESS_SOURCE_DIR}/include/
 )
+
+# set lib dirs
+LINK_DIRECTORIES(/usr/local/lib)
 
 # add sub dir
 ADD_SUBDIRECTORY(src)
