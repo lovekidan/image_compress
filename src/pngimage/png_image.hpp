@@ -1,7 +1,7 @@
 #ifndef PNG_IMAGE
 #define PNG_IMAGE
 
-#include <opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include "libpng/png.h"
 #include "zlib/zlib.h"
 

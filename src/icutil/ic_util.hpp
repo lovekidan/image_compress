@@ -21,6 +21,9 @@ bool ic_compress_png(const char* inputFile, const char* outputFile, int quality)
 // compress apng image
 bool ic_compress_apng(const char* inputFile, const char* outputFile);
 
+// compress nine patch png image
+bool ic_compress_nine_patch_png(const char* inputFile, const char* outputFile, int quality);
+
 // compress jpeg image
 bool ic_compress_jpeg(const char* inputFile, const char* outputFile, int quality);
 

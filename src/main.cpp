@@ -19,7 +19,11 @@ int main(int argc, char** argv) {
 			case IMAGE_TYPE_JPEG:
 			ic_compress_jpeg(argv[1], "/home/lovekid/Downloads/jpeg_compressed.png", 80);
 			break;
+			case IMAGE_TYPE_UNCOMPLIED_9PNG:
+			ic_compress_nine_patch_png(argv[1], "/home/lovekid/Downloads/jpeg_compressed.png", 80);
+			break;
 		}
 	}
+
 	return 0;
 }
