@@ -36,6 +36,8 @@ ${IMAGE_COMPRESS_SOURCE_DIR}/src/apngasm/
 ${IMAGE_COMPRESS_SOURCE_DIR}/src/zopfli/
 )
 
+#MESSAGE(STATUS "{Boost_INCLUDE_DIRS}: " ${Boost_INCLUDE_DIRS})
+
 # set lib dirs
 LINK_DIRECTORIES(/usr/local/lib/ ${Boost_LIBRARY_DIRS}/)
 
