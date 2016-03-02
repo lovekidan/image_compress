@@ -2,6 +2,8 @@
 #include <string.h>
 #include <string>
 #include "icutil/ic_util.hpp"
+#include <boost/filesystem.hpp>
+
 using std::string;
 
 bool compress_image_from_file(string& inputPath, string& outputPath, int quality) {
@@ -24,8 +26,36 @@ bool compress_image_from_file(string& inputPath, string& outputPath, int quality
 	return true;
 }
 
+std::vector<string> get_files_from_dir(const string& inputPath) {
+	std::vector<string> files;
+	boost::filesystem::directory_iterator dirIterBegin(inputPath);
+	boost::filesystem::directory_iterator dirIterEnd;
+	for (; dirIterBegin != dirIterEnd; ++ dirIterBegin) {
+		if (!boost::filesystem::is_directory(*dirIterBegin)) {
+			files.push_back(string(dirIterBegin->path().c_str()));
+		}
+	}
+	return files;
+}
+
+string combine_file_path(const string& dir, const string& postFix, const string& name, const string& extension) {
+	return string().append(dir).append(name).append(postFix).append(extension);
+}
+
 bool compress_image_from_dir(string& inputPath, string& outputPath, int quality) {
-	return false;
+	std::vector<string> files = get_files_from_dir(inputPath);
+	string postFix = 0 != strcmp(inputPath.c_str(), outputPath.c_str()) ? "" : ".compressed";
+	string extension = "";
+	string baseName = "";
+	string outputFilePath = "";
+	for (auto iter = files.begin(); files.end() != iter; ++iter) {
+		baseName = boost::filesystem::basename(*iter);
+		extension = boost::filesystem::extension(*iter);
+		outputFilePath = combine_file_path(outputPath, postFix, baseName, extension);
+		printf("%s\n", outputPath.c_str());
+		compress_image_from_file(*iter, outputFilePath, quality);
+	}
+	return true;
 }
 
 int main(int argc, char** argv) {
@@ -92,7 +122,7 @@ int main(int argc, char** argv) {
 	}
 
 	if (isDir) {
-		/* code */
+		compress_image_from_dir(inputPath, outputPath, quality);
 	} else {
 		compress_image_from_file(inputPath, outputPath, quality);
 	}
