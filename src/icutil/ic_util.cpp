@@ -78,6 +78,6 @@ bool ic_compress_nine_patch_png(const char* inputFile, const char* outputFile, i
 }
 
 bool ic_compress_jpeg(const char* inputFile, const char* outputFile, int quality) {
-    //return CJpegFile(inputFile, outputFile, quality);
-    return false;
+    return CJpegFile(inputFile, outputFile, quality);
+    //return false;
 }

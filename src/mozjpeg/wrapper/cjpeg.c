@@ -152,7 +152,7 @@ static char * outfilename;      /* for -outfile switch */
 boolean memdst;  /* for -memdst switch */
 
 
-LOCAL(void)
+LOCAL(int)
 usage (void)
 /* complain about bad command line */
 {
