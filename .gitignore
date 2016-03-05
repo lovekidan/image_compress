@@ -4,3 +4,11 @@ CMakeScripts
 Makefile
 cmake_install.cmake
 install_manifest.txt
+*.cmake
+mozjpeg.nsi
+jconfig.h
+jconfigint.h
+rdjpgcom
+image_compress
+wrjpgcom
+._.gitignore

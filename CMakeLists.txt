@@ -7,7 +7,9 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 # define compile std
 SET(CMAKE_CXX_FLAGS "-std=c++11")
 SET(CMAKE_C_FLAGS "-std=c11")
-SET(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+IF(UNIX AND NOT APPLE)
+    SET(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+ENDIF()
 
 # SET(BOOST_ROOT "/usr/local/lib")
 
@@ -40,7 +42,10 @@ ${IMAGE_COMPRESS_SOURCE_DIR}/src/zlib/
 ${IMAGE_COMPRESS_SOURCE_DIR}/src/libpng/
 ${IMAGE_COMPRESS_SOURCE_DIR}/src/apngasm/
 ${IMAGE_COMPRESS_SOURCE_DIR}/src/zopfli/
+${IMAGE_COMPRESS_SOURCE_DIR}/src/mozjpeg/
 )
+
+#MESSAGE(STATUS "{Boost_INCLUDE_DIRS}: " ${Boost_INCLUDE_DIRS})
 
 # set lib dirs
 LINK_DIRECTORIES(/usr/local/lib/ ${Boost_LIBRARY_DIRS}/)
