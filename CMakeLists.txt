@@ -8,7 +8,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET(CMAKE_CXX_FLAGS "-std=c++11")
 SET(CMAKE_C_FLAGS "-std=c11")
 IF(UNIX AND NOT APPLE)
-    SET(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+    SET(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
 ENDIF()
 
 # SET(BOOST_ROOT "/usr/local/lib")
