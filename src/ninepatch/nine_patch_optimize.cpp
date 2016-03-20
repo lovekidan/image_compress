@@ -79,7 +79,7 @@ bool PicOpt::Optimize9Grid::Optimize(const Mat &src,
 {
 	using namespace Utility;
 
-	GlobalConfig &config = GlobalConfig::GetInstance();
+	NinePatchConfig &config = NinePatchConfig::GetInstance();
 	bool b_ret = false;
 	new_img = src;
 	Mat out;
@@ -156,7 +156,7 @@ bool PicOpt::Optimize9Grid::OptimizeOneDirection(bool is_horizontal,
 	convertScaleAbs(gradient, abs_grad);
 	const Mat &grad_center = abs_grad(resize_rect);
 
-	uint32_t output_quality = GlobalConfig::GetInstance().GetOutputQuality();
+	uint32_t output_quality = NinePatchConfig::GetInstance().GetOutputQuality();
 	if (target_len == 2)
 	{   // for small picture
 		if (!NeedOptSmallSize(grad_center, is_horizontal))

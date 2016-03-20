@@ -60,8 +60,7 @@ bool ic_compress_apng(const char* inputFile, const char* outputFile) {
 
 bool ic_compress_nine_patch_png(const char* inputFile, const char* outputFile, int quality) {
     bool result = false;
-    int nine_patch_val[4] = { 0, 0, 0, 0 };
-    if (NinePatchOpt(inputFile, outputFile, 2, nine_patch_val, 100)){
+    if (NinePatchOpt(inputFile, outputFile, 2, 100)){
         result = PngQuantFile(outputFile, outputFile, quality) != 0;
     }
     else{

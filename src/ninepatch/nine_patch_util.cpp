@@ -415,7 +415,7 @@ bool PicOpt::Utility::Get9GridParamFromPic(const Mat &src, Vec4i &grid, Vec4i &p
 	padding[2] -= 1;
 	padding[3] -= 1;
 
-    const GlobalConfig &config = GlobalConfig::GetInstance();
+    const NinePatchConfig &config = NinePatchConfig::GetInstance();
     if (img){
 		cv::Rect rc(Point(1, 1), src.size());
 		rc.width -= 2;

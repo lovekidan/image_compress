@@ -122,7 +122,7 @@ namespace
 		if (input.image.empty()){
 			throw InvalidImageException("Fail! invalid input image!");
 		}
-		GlobalConfig &config = GlobalConfig::GetInstance();
+		NinePatchConfig &config = NinePatchConfig::GetInstance();
 		input.grid = config.GetNinePathInfo();
 
 		vector<uint32_t> divs;
@@ -177,33 +177,23 @@ namespace
 	}
 }
 
-bool NinePatchOpt(const char *inputFile, const char *outputFile, int outputKind, int(&ninePatch)[4], int quality){
+bool NinePatchOpt(const char *inputFile, const char *outputFile, int outputKind, int quality){
 	if (inputFile == NULL || strlen(inputFile) == 0 || outputFile == NULL || strlen(outputFile) == 0)
 		return false;
 
 	using namespace Utility;
-	cv::Vec4i inNinePatchInfo;
-	inNinePatchInfo[0] = ninePatch[0];
-	inNinePatchInfo[1] = ninePatch[1];
-	inNinePatchInfo[2] = ninePatch[2];
-	inNinePatchInfo[3] = ninePatch[3];
 
-	GlobalConfig &config = GlobalConfig::GetInstance();
-	if (!config.SetFunctionArgs(std::string(inputFile), std::string(outputFile), outputKind, inNinePatchInfo, quality)){
+	NinePatchConfig &config = NinePatchConfig::GetInstance();
+	if (!config.SetFunctionArgs(outputKind, quality)){
 		return false;
 	}
 
 	int ret = 0;
-	auto file = bfs::path(config.GetSrcPath());
+	auto file = bfs::path(inputFile);
 	try
 	{
-		auto size = ProcessSingleImage(config.GetSrcPath(), config.GetDstPath());
-        cv::Vec4i resultNinePatchInfo = config.GetNinePathInfo();
-        ninePatch[0] = resultNinePatchInfo[0];
-        ninePatch[1] = resultNinePatchInfo[1];
-        ninePatch[2] = resultNinePatchInfo[2];
-        ninePatch[3] = resultNinePatchInfo[3];
-		bfs::path output_name(config.GetDstPath());
+		auto size = ProcessSingleImage(string(inputFile), string(outputFile));
+		bfs::path output_name(outputFile);
 		cout << "Success with: " << output_name.filename();
 		cout << ", reduce size: " << (int64_t)size.first - (int64_t)size.second << " bytes" << endl;
 	}
