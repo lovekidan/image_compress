@@ -59,6 +59,19 @@ bool compress_image_from_dir(string& inputPath, string& outputPath, int quality)
 	return true;
 }
 
+string fix_path(string& path) {
+	boost::filesystem::path tmpPath(path);
+	if (!tmpPath.is_complete())
+	{
+		tmpPath = boost::filesystem::system_complete(tmpPath);
+	}
+	if (boost::filesystem::exists(tmpPath))
+	{
+		return tmpPath.string();
+	}
+	return string();
+}
+
 int main(int argc, char** argv) {
 	string inputPath;
 	string outputPath;
@@ -118,8 +131,17 @@ int main(int argc, char** argv) {
 		goto error;
 	}
 
+	inputPath = fix_path(inputPath);
+	if (0 == inputPath.length())
+	{
+		errorMessage = "invalid inputPath, please check and retry.";
+		goto error;
+	}
+	
 	if (0 == outputPath.length()) {
 		outputPath = inputPath;
+	} else {
+		outputPath = fix_path(outputPath);
 	}
 
 	if (isDir) {
