@@ -5,11 +5,11 @@
 
 namespace PicOpt
 {
-	class Optimize9Grid
+	class Optimize9Patch
 	{
 	public:
-		Optimize9Grid();
-		~Optimize9Grid();
+		Optimize9Patch();
+		~Optimize9Patch();
 
 		void SetMaxCenterPSNR(double psnr);
 		void SetCenterRectWidth(int width);

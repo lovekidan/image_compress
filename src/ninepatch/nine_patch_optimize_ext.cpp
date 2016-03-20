@@ -25,7 +25,7 @@ namespace
         kOutputCompiledNinePatchPng = 3
     };
 
-	bool Recognize9Grid(Utility::ImageDesc &input, bool use_img_grid)
+	bool Recognize9Patch(Utility::ImageDesc &input, bool use_img_grid)
 	{
 		using namespace Utility;
 
@@ -35,8 +35,8 @@ namespace
         }
 
 		Vec4i new_grid;
-		Gen9Grid generator;
-		generator.Get9GirdLines(input.image, new_grid);
+		Gen9Patch generator;
+		generator.Get9PatchLines(input.image, new_grid);
 
 		ImageDesc input_opt = input;
 		input_opt.grid[0] = new_grid[0];
@@ -62,7 +62,7 @@ namespace
 	bool OptimizePic(const Utility::ImageDesc &input,
 		Utility::ImageDesc &output)
 	{
-		Optimize9Grid optimizator;
+		Optimize9Patch optimizator;
 		optimizator.SetCenterRectWidth(2);
 		bool b_ret = optimizator.Optimize(input.image, input.grid, output.image, output.grid);
 
@@ -74,7 +74,7 @@ namespace
 		bool use_image_grid)
 	{
 		Utility::ImageDesc out_opt = input;
-		Recognize9Grid(out_opt, use_image_grid);
+		Recognize9Patch(out_opt, use_image_grid);
 		if (OptimizePic(out_opt, out_opt))
 		{
 			output = out_opt;
@@ -130,8 +130,8 @@ namespace
 			throw ICException("Fail! image contain too much gird!");
 		}
 
-		if (!IsGridValid(input.grid) &&
-			!Get9GridParamFromPic(input.image, input.grid, input.padding, &input.image))
+		if (!IsPatchValid(input.grid) &&
+			!Get9PatchParamFromPic(input.image, input.grid, input.padding, &input.image))
 		{
 			throw ICException("Fail! image not contain 9 grid info!");
 		}

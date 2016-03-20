@@ -51,28 +51,28 @@ namespace
 }
 
 
-PicOpt::Optimize9Grid::Optimize9Grid()
+PicOpt::Optimize9Patch::Optimize9Patch()
     : max_center_psnr_(0)
 	, center_width_(1)
 {
 }
 
 
-PicOpt::Optimize9Grid::~Optimize9Grid()
+PicOpt::Optimize9Patch::~Optimize9Patch()
 {
 }
 
-void PicOpt::Optimize9Grid::SetMaxCenterPSNR(double psnr)
+void PicOpt::Optimize9Patch::SetMaxCenterPSNR(double psnr)
 {
 	max_center_psnr_ = psnr;
 }
 
-void PicOpt::Optimize9Grid::SetCenterRectWidth(int width)
+void PicOpt::Optimize9Patch::SetCenterRectWidth(int width)
 {
 	center_width_ = width;
 }
 
-bool PicOpt::Optimize9Grid::Optimize(const Mat &src,
+bool PicOpt::Optimize9Patch::Optimize(const Mat &src,
 	const Vec4i &grid,
 	Mat &new_img,
 	Vec4i &new_grid)
@@ -117,7 +117,7 @@ bool PicOpt::Optimize9Grid::Optimize(const Mat &src,
 	return b_ret;
 }
 
-bool PicOpt::Optimize9Grid::OptimizeOneDirection(bool is_horizontal,
+bool PicOpt::Optimize9Patch::OptimizeOneDirection(bool is_horizontal,
 	const cv::Mat &img,
 	const cv::Vec2i &grid,
 	cv::Mat &new_img,
@@ -169,7 +169,7 @@ bool PicOpt::Optimize9Grid::OptimizeOneDirection(bool is_horizontal,
 	return true;
 }
 
-bool PicOpt::Optimize9Grid::NeedOptSmallSize(const Mat &grad_center, bool is_horizontal)
+bool PicOpt::Optimize9Patch::NeedOptSmallSize(const Mat &grad_center, bool is_horizontal)
 {
 	if (is_horizontal)
 	{
@@ -185,7 +185,7 @@ bool PicOpt::Optimize9Grid::NeedOptSmallSize(const Mat &grad_center, bool is_hor
 	}
 }
 
-Mat PicOpt::Optimize9Grid::ResizeImageRect(const Mat &img,
+Mat PicOpt::Optimize9Patch::ResizeImageRect(const Mat &img,
 	const cv::Rect &rc,
 	bool is_hrz,
 	Vec2i &new_grid)

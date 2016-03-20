@@ -62,7 +62,7 @@ namespace PicOpt
 		}
 
 		template<typename _Ty>
-		inline bool IsGridValid(const _Ty &grid)
+		inline bool IsPatchValid(const _Ty &grid)
 		{
 			for (size_t i = 0; i < _Ty::channels; ++i)
 			{
@@ -84,7 +84,7 @@ namespace PicOpt
 			}
 		}
 
-		inline bool IsThreeGrid(const cv::Vec4i &grid)
+		inline bool IsThreePatch(const cv::Vec4i &grid)
 		{
 			return (grid[0] == 0 && grid[1] > 0 && grid[2] == 0 && grid[3] > 0) ||
 				(grid[0] > 0 && grid[1] == 0 && grid[2] > 0 && grid[3] == 0);
@@ -158,9 +158,9 @@ namespace PicOpt
 		cv::Scalar GetMSSIM(const cv::Mat &left, const cv::Mat &right);
 
 		cv::Vec4i GetMinLine(cv::Vec4i left, cv::Vec4i right, bool is_horizontal);
-		cv::Mat DrawGridOnPic(const cv::Mat &src, const cv::Vec4i &grid);
-		cv::Mat Generate9GridPic(const cv::Mat &src, const cv::Vec4i &grid);
-		cv::Mat StretchPicWith9Grid(const cv::Mat &src, const cv::Vec4i &grid, const cv::Size &rc_dst);
+		cv::Mat DrawPatchOnPic(const cv::Mat &src, const cv::Vec4i &grid);
+		cv::Mat Generate9PatchPic(const cv::Mat &src, const cv::Vec4i &grid);
+		cv::Mat StretchPicWith9Patch(const cv::Mat &src, const cv::Vec4i &grid, const cv::Size &rc_dst);
 
 		/*
 		*   grid[0-3]: left, top, right, bottom
@@ -170,8 +170,8 @@ namespace PicOpt
 		*       6, 7, 8
 		*
 		*/
-		void Get9GridRect(const cv::Rect &outer, const cv::Vec4i &grid, cv::Rect *grids);
-		bool Get9GridParamFromPic(const cv::Mat &src, cv::Vec4i &grid, cv::Vec4i &padding, cv::Mat *img = nullptr);
+		void Get9PatchRect(const cv::Rect &outer, const cv::Vec4i &grid, cv::Rect *grids);
+		bool Get9PatchParamFromPic(const cv::Mat &src, cv::Vec4i &grid, cv::Vec4i &padding, cv::Mat *img = nullptr);
 		cv::Mat GetGrayImageHistogram(const cv::Mat &image);
 
 		typedef enum _ImageType

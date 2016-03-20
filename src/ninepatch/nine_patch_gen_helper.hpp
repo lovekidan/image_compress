@@ -5,15 +5,15 @@
 
 namespace PicOpt
 {
-	class Gen9Grid
+	class Gen9Patch
 	{
 	public:
-		Gen9Grid();
-        ~Gen9Grid();
+		Gen9Patch();
+        ~Gen9Patch();
 
 		// out[0-3] = left, top, right, bottom
-		bool Get9GirdLines(const cv::Mat &src, cv::Vec4i &out);
-		bool Get9GirdLinesWithOldGrid(const cv::Mat &src, const cv::Vec4i &in, cv::Vec4i &out);
+		bool Get9PatchLines(const cv::Mat &src, cv::Vec4i &out);
+		bool Get9PatchLinesWithOldPatch(const cv::Mat &src, const cv::Vec4i &in, cv::Vec4i &out);
 
 	private:
 		bool GetEdgeLineSobel(const cv::Mat &src,

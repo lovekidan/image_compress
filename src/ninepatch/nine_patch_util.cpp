@@ -47,7 +47,7 @@ namespace
 		return rc.br().y;
 	}
 
-	Vec4i GetGridInRect(const cv::Rect &rc, const Vec4i &grid)
+	Vec4i GetPatchInRect(const cv::Rect &rc, const Vec4i &grid)
 	{
 		return Vec4i((std::max)(rc.x, grid[0]),
 			(std::max)(rc.y, grid[1]),
@@ -228,7 +228,7 @@ Vec4i PicOpt::Utility::GetMinLine(Vec4i left, Vec4i right, bool is_horizontal)
 	return ret;
 }
 
-Mat PicOpt::Utility::DrawGridOnPic(const Mat &src, const Vec4i &grid)
+Mat PicOpt::Utility::DrawPatchOnPic(const Mat &src, const Vec4i &grid)
 {
 	Mat out;
 	src.copyTo(out);
@@ -243,7 +243,7 @@ Mat PicOpt::Utility::DrawGridOnPic(const Mat &src, const Vec4i &grid)
 	return out;
 }
 
-Mat PicOpt::Utility::Generate9GridPic(const Mat &src, const Vec4i &grid)
+Mat PicOpt::Utility::Generate9PatchPic(const Mat &src, const Vec4i &grid)
 {
 	Mat out;
 	if (src.channels() == 4)
@@ -274,13 +274,13 @@ Mat PicOpt::Utility::Generate9GridPic(const Mat &src, const Vec4i &grid)
 	return out;
 }
 
-Mat PicOpt::Utility::StretchPicWith9Grid(const Mat &src, const Vec4i &grid, const Size &rc_dst)
+Mat PicOpt::Utility::StretchPicWith9Patch(const Mat &src, const Vec4i &grid, const Size &rc_dst)
 {
 	cv::Rect rc_src(Point(), src.size());
 	cv::Rect grids[9];
-	Get9GridRect(rc_src, grid, grids);
+	Get9PatchRect(rc_src, grid, grids);
 	cv::Rect dst_grids[9];
-	Get9GridRect(cv::Rect(Point(), rc_dst), grid, dst_grids);
+	Get9PatchRect(cv::Rect(Point(), rc_dst), grid, dst_grids);
 
 	Mat dst(rc_dst, src.type());
 	for (size_t i = 0; i < 9; ++i)
@@ -298,7 +298,7 @@ Mat PicOpt::Utility::StretchPicWith9Grid(const Mat &src, const Vec4i &grid, cons
 	return dst;
 }
 
-void PicOpt::Utility::Get9GridRect(const Rect &outer, const Vec4i &grid, cv::Rect *grids)
+void PicOpt::Utility::Get9PatchRect(const Rect &outer, const Vec4i &grid, cv::Rect *grids)
 {
 	Vec4i grid_fix = grid;
 	int center_width = outer.width - grid_fix[0] - grid_fix[2];
@@ -353,7 +353,7 @@ void PicOpt::Utility::Get9GridRect(const Rect &outer, const Vec4i &grid, cv::Rec
 	grids[8].height = grid_fix[3];
 }
 
-bool PicOpt::Utility::Get9GridParamFromPic(const Mat &src, Vec4i &grid, Vec4i &padding, Mat *img)
+bool PicOpt::Utility::Get9PatchParamFromPic(const Mat &src, Vec4i &grid, Vec4i &padding, Mat *img)
 {
 	if (src.channels() != 4)
 	{   // not contain alpha
@@ -571,8 +571,8 @@ bool PicOpt::Utility::CheckOptResult(const cv::Mat &org,
 	stretch_size.height = (std::max)(input_size.height, stretch_size.height) * 2;
 	Mat stretch_img = AlphaBlendWithGray(org);
 	Mat opt_stretch_img = AlphaBlendWithGray(opt);
-	stretch_img = StretchPicWith9Grid(stretch_img, org_grid, stretch_size);
-	opt_stretch_img = StretchPicWith9Grid(opt_stretch_img, opt_grid, stretch_size);
+	stretch_img = StretchPicWith9Patch(stretch_img, org_grid, stretch_size);
+	opt_stretch_img = StretchPicWith9Patch(opt_stretch_img, opt_grid, stretch_size);
 
 	if (quality < 100)
 	{
