@@ -25,35 +25,35 @@ namespace
         kOutputCompiledNinePatchPng = 3
     };
 
-	bool Recognize9Patch(Utility::ImageDesc &input, bool use_img_grid)
+	bool Recognize9Patch(Utility::ImageDesc &input, bool use_img_patch)
 	{
 		using namespace Utility;
 
-        if (use_img_grid)
+        if (use_img_patch)
         {
             return true;
         }
 
-		Vec4i new_grid;
+		Vec4i new_patch;
 		Gen9Patch generator;
-		generator.Get9PatchLines(input.image, new_grid);
+		generator.Get9PatchLines(input.image, new_patch);
 
 		ImageDesc input_opt = input;
-		input_opt.grid[0] = new_grid[0];
-		input_opt.grid[2] = new_grid[2];
+		input_opt.patch[0] = new_patch[0];
+		input_opt.patch[2] = new_patch[2];
 		if (CheckOptResult(input, input_opt, 100))
 		{
-			input.grid[0] = new_grid[0];
-			input.grid[2] = new_grid[2];
+			input.patch[0] = new_patch[0];
+			input.patch[2] = new_patch[2];
 		}
 
-		input_opt.grid = input.grid;
-		input_opt.grid[1] = new_grid[1];
-		input_opt.grid[3] = new_grid[3];
+		input_opt.patch = input.patch;
+		input_opt.patch[1] = new_patch[1];
+		input_opt.patch[3] = new_patch[3];
 		if (CheckOptResult(input, input_opt, 100))
 		{
-			input.grid[1] = new_grid[1];
-			input.grid[3] = new_grid[3];
+			input.patch[1] = new_patch[1];
+			input.patch[3] = new_patch[3];
 		}
 
 		return true;
@@ -64,17 +64,17 @@ namespace
 	{
 		Optimize9Patch optimizator;
 		optimizator.SetCenterRectWidth(2);
-		bool b_ret = optimizator.Optimize(input.image, input.grid, output.image, output.grid);
+		bool b_ret = optimizator.Optimize(input.image, input.patch, output.image, output.patch);
 
 		return b_ret;
 	}
 
 	bool MainOptimizeProcess(const Utility::ImageDesc &input,
 		Utility::ImageDesc &output,
-		bool use_image_grid)
+		bool use_image_patch)
 	{
 		Utility::ImageDesc out_opt = input;
-		Recognize9Patch(out_opt, use_image_grid);
+		Recognize9Patch(out_opt, use_image_patch);
 		if (OptimizePic(out_opt, out_opt))
 		{
 			output = out_opt;
@@ -123,17 +123,17 @@ namespace
 			throw InvalidImageException("Fail! invalid input image!");
 		}
 		NinePatchConfig &config = NinePatchConfig::GetInstance();
-		input.grid = config.GetNinePathInfo();
+		input.patch = config.GetNinePathInfo();
 
 		vector<uint32_t> divs;
 		if (getMutilBlackLine(input.image.col(0), divs) || getMutilBlackLine(input.image.row(0), divs)){
 			throw ICException("Fail! image contain too much gird!");
 		}
 
-		if (!IsPatchValid(input.grid) &&
-			!Get9PatchParamFromPic(input.image, input.grid, input.padding, &input.image))
+		if (!IsPatchValid(input.patch) &&
+			!Get9PatchParamFromPic(input.image, input.patch, input.padding, &input.image))
 		{
-			throw ICException("Fail! image not contain 9 grid info!");
+			throw ICException("Fail! image not contain 9 patch info!");
 		}
 
 		ImageDesc output;
@@ -147,7 +147,7 @@ namespace
 		}
 
 		output.name = dst_name;
-        config.setNinePatchInfo(output.grid);
+        config.setNinePatchInfo(output.patch);
 		switch (config.GetOutputType())
 		{
 		case kOutputPng:
@@ -161,10 +161,10 @@ namespace
 			break;
 		}
         cout << "NinePath: ";
-        cout << output.grid[0] << ',';
-        cout << output.grid[1] << ',';
-        cout << output.grid[2] << ',';
-        cout << output.grid[3] << endl;
+        cout << output.patch[0] << ',';
+        cout << output.patch[1] << ',';
+        cout << output.patch[2] << ',';
+        cout << output.patch[3] << endl;
 
 		return pair<uint64_t, uint64_t>(input.size, output.size);
 	}

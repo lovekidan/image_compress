@@ -62,11 +62,11 @@ namespace PicOpt
 		}
 
 		template<typename _Ty>
-		inline bool IsPatchValid(const _Ty &grid)
+		inline bool IsPatchValid(const _Ty &patch)
 		{
 			for (size_t i = 0; i < _Ty::channels; ++i)
 			{
-				if (grid[i] > 0)
+				if (patch[i] > 0)
 				{
 					return true;
 				}
@@ -84,10 +84,10 @@ namespace PicOpt
 			}
 		}
 
-		inline bool IsThreePatch(const cv::Vec4i &grid)
+		inline bool IsThreePatch(const cv::Vec4i &patch)
 		{
-			return (grid[0] == 0 && grid[1] > 0 && grid[2] == 0 && grid[3] > 0) ||
-				(grid[0] > 0 && grid[1] == 0 && grid[2] > 0 && grid[3] == 0);
+			return (patch[0] == 0 && patch[1] > 0 && patch[2] == 0 && patch[3] > 0) ||
+				(patch[0] > 0 && patch[1] == 0 && patch[2] > 0 && patch[3] == 0);
 		}
 
 		/*
@@ -158,20 +158,20 @@ namespace PicOpt
 		cv::Scalar GetMSSIM(const cv::Mat &left, const cv::Mat &right);
 
 		cv::Vec4i GetMinLine(cv::Vec4i left, cv::Vec4i right, bool is_horizontal);
-		cv::Mat DrawPatchOnPic(const cv::Mat &src, const cv::Vec4i &grid);
-		cv::Mat Generate9PatchPic(const cv::Mat &src, const cv::Vec4i &grid);
-		cv::Mat StretchPicWith9Patch(const cv::Mat &src, const cv::Vec4i &grid, const cv::Size &rc_dst);
+		cv::Mat DrawPatchOnPic(const cv::Mat &src, const cv::Vec4i &patch);
+		cv::Mat Generate9PatchPic(const cv::Mat &src, const cv::Vec4i &patch);
+		cv::Mat StretchPicWith9Patch(const cv::Mat &src, const cv::Vec4i &patch, const cv::Size &rc_dst);
 
 		/*
-		*   grid[0-3]: left, top, right, bottom
-		*   grids-index's position in 9 grid:
+		*   patch[0-3]: left, top, right, bottom
+		*   patchs-index's position in 9 patch:
 		*       0, 1, 2
 		*       3, 4, 5
 		*       6, 7, 8
 		*
 		*/
-		void Get9PatchRect(const cv::Rect &outer, const cv::Vec4i &grid, cv::Rect *grids);
-		bool Get9PatchParamFromPic(const cv::Mat &src, cv::Vec4i &grid, cv::Vec4i &padding, cv::Mat *img = nullptr);
+		void Get9PatchRect(const cv::Rect &outer, const cv::Vec4i &patch, cv::Rect *patchs);
+		bool Get9PatchParamFromPic(const cv::Mat &src, cv::Vec4i &patch, cv::Vec4i &padding, cv::Mat *img = nullptr);
 		cv::Mat GetGrayImageHistogram(const cv::Mat &image);
 
 		typedef enum _ImageType
@@ -192,7 +192,7 @@ namespace PicOpt
 		{
 		public:
 			ImageDesc()
-				: grid(0, 0, 0, 0)
+				: patch(0, 0, 0, 0)
 				, padding(0, 0, 0, 0)
 				, size(0)
 				, min_quanlity(100)
@@ -215,7 +215,7 @@ namespace PicOpt
 			{
 				name = obj.name;
 				image = obj.image;
-				grid = obj.grid;
+				patch = obj.patch;
 				padding = obj.padding;
 				size = obj.size;
 				min_quanlity = obj.min_quanlity;
@@ -225,7 +225,7 @@ namespace PicOpt
 
 			std::string name;
 			cv::Mat image;
-			cv::Vec4i grid;
+			cv::Vec4i patch;
 			cv::Vec4i padding;
 			uint64_t size;
 			uint32_t min_quanlity;
@@ -233,9 +233,9 @@ namespace PicOpt
 		};
 
 		bool CheckOptResult(const cv::Mat &org,
-			const cv::Vec4i &org_grid,
+			const cv::Vec4i &org_patch,
 			const cv::Mat &opt,
-			const cv::Vec4i &opt_grid,
+			const cv::Vec4i &opt_patch,
 			uint32_t quality);
 
 		inline bool CheckOptResult(const Utility::ImageDesc &org,
@@ -243,9 +243,9 @@ namespace PicOpt
 			uint32_t quality)
 		{
 			return CheckOptResult(org.image,
-				org.grid,
+				org.patch,
 				opt.image,
-				opt.grid,
+				opt.patch,
 				quality);
 		}
 
