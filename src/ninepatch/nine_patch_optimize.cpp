@@ -154,7 +154,7 @@ bool PicOpt::Optimize9Grid::OptimizeOneDirection(bool is_horizontal,
 
 	Mat abs_grad;
 	convertScaleAbs(gradient, abs_grad);
-	Mat &grad_center = abs_grad(resize_rect);
+	const Mat &grad_center = abs_grad(resize_rect);
 
 	uint32_t output_quality = GlobalConfig::GetInstance().GetOutputQuality();
 	if (target_len == 2)

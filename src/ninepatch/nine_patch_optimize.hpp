@@ -1,7 +1,7 @@
 #ifndef NINE_PATCH_OPTIMIZE
 #define NINE_PATCH_OPTIMIZE
 
-#include <imgproc/imgproc.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 namespace PicOpt
 {

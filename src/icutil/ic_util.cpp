@@ -60,24 +60,23 @@ bool ic_compress_apng(const char* inputFile, const char* outputFile) {
 
 bool ic_compress_nine_patch_png(const char* inputFile, const char* outputFile, int quality) {
     bool result = false;
-    // int nine_patch_val[4] = { 0, 0, 0, 0 };
-    // if (NinePatchOpt(inputFile, outputFile, 2, nine_patch_val, 100)){
-    //     result = PngQuantFile(outputFile, outputFile, quality) != 0;
-    // }
-    // else{
-    //     result = PngQuantFile(inputFile, outputFile, quality) != 0;
-    // }
+    int nine_patch_val[4] = { 0, 0, 0, 0 };
+    if (NinePatchOpt(inputFile, outputFile, 2, nine_patch_val, 100)){
+        result = PngQuantFile(outputFile, outputFile, quality) != 0;
+    }
+    else{
+        result = PngQuantFile(inputFile, outputFile, quality) != 0;
+    }
 
-    // if (result && ic_get_image_type(outputFile) == IMAGE_TYPE_UNCOMPLIED_9PNG){
-    //     result = PngZopfliCompress(outputFile, outputFile);
-    // }
-    // else{
-    //     result = PngZopfliCompress(inputFile, outputFile);
-    // }
+    if (result && ic_get_image_type(outputFile) == IMAGE_TYPE_UNCOMPLIED_9PNG){
+        result = PngZopfliCompress(outputFile, outputFile);
+    }
+    else{
+        result = PngZopfliCompress(inputFile, outputFile);
+    }
     return result;
 }
 
 bool ic_compress_jpeg(const char* inputFile, const char* outputFile, int quality) {
     return CJpegFile(inputFile, outputFile, quality);
-    //return false;
 }

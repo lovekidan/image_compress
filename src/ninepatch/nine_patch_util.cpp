@@ -3,8 +3,7 @@
 #include <functional>
 #include <fstream>
 #include <locale>
-//#include <codecvt>
-#include <exception>
+#include "include/ic_exception.h"
 #include "../pngimage/png_image.hpp"
 #include "../libpng/png.h"
 #include "nine_patch_global_config.hpp"
@@ -233,7 +232,7 @@ Mat PicOpt::Utility::DrawGridOnPic(const Mat &src, const Vec4i &grid)
 {
 	Mat out;
 	src.copyTo(out);
-	auto &size = out.size();
+	const auto &size = out.size();
 	Vec4i grid_fix = grid;
 	grid_fix[2] = size.width - grid[2] - 1;
 	grid_fix[3] = size.height - grid[3] - 1;
@@ -291,8 +290,8 @@ Mat PicOpt::Utility::StretchPicWith9Grid(const Mat &src, const Vec4i &grid, cons
 			continue;
 		}
 
-		Mat &src_part = src(grids[i]);
-		Mat &dst_part = dst(dst_grids[i]);
+		const Mat &src_part = src(grids[i]);
+		const Mat &dst_part = dst(dst_grids[i]);
 		resize(src_part, dst_part, dst_part.size(), 0, 0, INTER_NEAREST);
 	}
 
@@ -471,8 +470,9 @@ bool PicOpt::Utility::ReadImage(ImageDesc &img){
 uint64_t PicOpt::Utility::WriteToPngFile(const ImageDesc &img_out){
 	PngImage pngImage;
 	pngImage.read_png_from_Mat(img_out.image);
-	if(!pngImage.write_png(img_out.name))
-		throw exception("Fail! exception converting image to PNG!");
+	if(!pngImage.write_png(img_out.name)) {
+		throw ICException("Fail! exception converting image to PNG!");
+	}
 	return boost::filesystem::file_size(boost::filesystem::path(img_out.name));
 }
 
@@ -480,8 +480,9 @@ uint64_t PicOpt::Utility::WriteToCompliedNinePngFile(const ImageDesc &img_out){
 	PngImage pngImage;
 	pngImage.read_png_from_Mat(img_out.image);
 	pngImage.set_npTc_info(img_out.grid, img_out.padding);
-	if (!pngImage.write_png(img_out.name))
-		throw exception("Fail! exception converting image to PNG!");
+	if (!pngImage.write_png(img_out.name)) {
+		throw ICException("Fail! exception converting image to PNG!");
+	}
 	return boost::filesystem::file_size(boost::filesystem::path(img_out.name));
 }
 
@@ -490,43 +491,72 @@ uint64_t PicOpt::Utility::WriteToUnCompliedNinePngFile(const ImageDesc &img_out)
     pngImage.read_png_from_Mat(img_out.image);
     pngImage.set_npTc_info(img_out.grid, img_out.padding);
     pngImage.set_de9patch();
-    if (!pngImage.write_png(img_out.name))
-        throw exception("Fail! exception converting image to PNG!");
+    if (!pngImage.write_png(img_out.name)) {
+    	throw ICException("Fail! exception converting image to PNG!");
+    }
     return boost::filesystem::file_size(boost::filesystem::path(img_out.name));
 }
 
-std::wstring PicOpt::Utility::Utf8ToUtf16(const std::string &str)
-{
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
-	return utf16conv.from_bytes(str);
-}
+// std::wstring PicOpt::Utility::Utf8ToUtf16(const std::string &str)
+// {
+// 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
+// 	return utf16conv.from_bytes(str);
+// }
 
-std::string PicOpt::Utility::Utf16ToUtf8(const std::wstring &str)
-{
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
-	return utf16conv.to_bytes(str);
-}
+// std::string PicOpt::Utility::Utf16ToUtf8(const std::wstring &str)
+// {
+// 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
+// 	return utf16conv.to_bytes(str);
+// }
 
-boost::filesystem::path PicOpt::Utility::MakeRelative(boost::filesystem::path path, boost::filesystem::path file)
+boost::filesystem::path PicOpt::Utility::MakeRelative(boost::filesystem::path from, boost::filesystem::path to)
 {
-	typedef std::wstring::value_type WideChar;
-	std::vector<WideChar> buffer(32768);
-	auto CanonicalizePath = [&buffer](const std::wstring &path)->std::wstring
-	{
-		::PathCanonicalizeW(buffer.data(), path.c_str());
-		return std::wstring(buffer.data());
-	};
+	// typedef std::wstring::value_type WideChar;
+	// std::vector<WideChar> buffer(32768);
+	// auto CanonicalizePath = [&buffer](const std::wstring &path)->std::wstring
+	// {
+	// 	::PathCanonicalizeW(buffer.data(), path.c_str());
+	// 	return std::wstring(buffer.data());
+	// };
 
-	path = boost::filesystem::complete(path);
-	file = boost::filesystem::complete(file);
-	std::wstring path_name = CanonicalizePath(Utf8ToUtf16(path.file_string()));
-	std::wstring file_name = CanonicalizePath(Utf8ToUtf16(file.file_string()));
-	int ret = ::PathRelativePathToW(buffer.data(),
-		path_name.c_str(),
-		FILE_ATTRIBUTE_DIRECTORY,
-		file_name.c_str(),
-		FILE_ATTRIBUTE_NORMAL);
-	return boost::filesystem::path(Utf16ToUtf8(std::wstring(buffer.data())));
+	// path = boost::filesystem::complete(path);
+	// file = boost::filesystem::complete(file);
+	// std::wstring path_name = CanonicalizePath(Utf8ToUtf16(path.file_string()));
+	// std::wstring file_name = CanonicalizePath(Utf8ToUtf16(file.file_string()));
+	// int ret = ::PathRelativePathToW(buffer.data(),
+	// 	path_name.c_str(),
+	// 	FILE_ATTRIBUTE_DIRECTORY,
+	// 	file_name.c_str(),
+	// 	FILE_ATTRIBUTE_NORMAL);
+	// return boost::filesystem::path(Utf16ToUtf8(std::wstring(buffer.data())));
+	
+	// Start at the root path and while they are the same then do nothing then when they first
+   // diverge take the remainder of the two path and replace the entire from path with ".."
+   // segments.
+   boost::filesystem::path::const_iterator fromIter = from.begin();
+   boost::filesystem::path::const_iterator toIter = to.begin();
+
+   // Loop through both
+   while (fromIter != from.end() && toIter != to.end() && (*toIter) == (*fromIter))
+   {
+      ++toIter;
+      ++fromIter;
+   }
+
+   boost::filesystem::path finalPath;
+   while (fromIter != from.end())
+   {
+      finalPath /= "..";
+      ++fromIter;
+   }
+
+   while (toIter != to.end())
+   {
+      finalPath /= *toIter;
+      ++toIter;
+   }
+
+   return finalPath;
 }
 
 bool PicOpt::Utility::CheckOptResult(const cv::Mat &org,

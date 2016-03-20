@@ -255,8 +255,8 @@ namespace PicOpt
         uint64_t WriteToCompliedNinePngFile(const ImageDesc &img_out);
         uint64_t WriteToUnCompliedNinePngFile(const ImageDesc &img_out);
 
-		std::wstring Utf8ToUtf16(const std::string &str);
-		std::string Utf16ToUtf8(const std::wstring &str);
+		//std::wstring Utf8ToUtf16(const std::string &str);
+		//std::string Utf16ToUtf8(const std::wstring &str);
 		boost::filesystem::path MakeRelative(boost::filesystem::path path, boost::filesystem::path file);
 	}
 }
