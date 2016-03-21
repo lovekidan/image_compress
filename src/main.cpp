@@ -7,9 +7,25 @@
 
 using std::string;
 
+string get_image_type_des(int type) {
+	switch (type) {
+		case IMAGE_TYPE_JPEG:
+			return "JPEG";
+		case IMAGE_TYPE_NORMAL_PNG:
+			return "PNG";
+		case IMAGE_TYPE_APNG:
+			return "APNG";
+		case IMAGE_TYPE_COMPLIED_9PNG:
+		case IMAGE_TYPE_UNCOMPLIED_9PNG:
+			return "9.PNG";
+		default:
+			return "UNKNOWN";
+	}
+}
+
 bool compress_image_from_file(string& inputPath, string& outputPath, int quality) {
 	IMAGE_TYPE image_type = ic_get_image_type(inputPath.c_str());
-	printf("%s 's type is %d\n", inputPath.c_str(), image_type);
+	printf("start to compress a %s image...\n", get_image_type_des(image_type).c_str());
 	switch (image_type) {
 		case IMAGE_TYPE_NORMAL_PNG:
 		ic_compress_png(inputPath.c_str(), outputPath.c_str(), quality);
@@ -59,17 +75,59 @@ bool compress_image_from_dir(string& inputPath, string& outputPath, int quality)
 	return true;
 }
 
-string fix_path(string& path) {
+string fix_input_path(string& path, bool is_directory) {
 	boost::filesystem::path tmpPath(path);
-	if (!tmpPath.is_complete())
-	{
-		tmpPath = boost::filesystem::system_complete(tmpPath);
-	}
-	if (boost::filesystem::exists(tmpPath))
-	{
+	if (!tmpPath.is_complete() || boost::filesystem::exists(tmpPath)) {
+		try {
+			tmpPath = boost::filesystem::canonical(tmpPath);
+		} catch(boost::filesystem::filesystem_error e) {
+			printf("error -> %s.\n", e.what());
+			return string();
+		}
+		if (is_directory)
+		{
+			return string().append(tmpPath.string()).append("/");
+		}
 		return tmpPath.string();
 	}
+
 	return string();
+}
+
+string fix_output_path(string& path, bool is_directory) {
+	boost::filesystem::path tmpPath(path);
+	if (tmpPath.is_complete()) {
+		return tmpPath.string();
+	}
+
+	tmpPath = boost::filesystem::system_complete(tmpPath);
+	if (boost::filesystem::exists(tmpPath)) {
+		tmpPath = boost::filesystem::canonical(tmpPath);
+		if (is_directory)
+		{
+			return string().append(tmpPath.string()).append("/");
+		}
+		return tmpPath.string();
+	}
+
+	string fileName;
+	boost::filesystem::path dirPath = tmpPath;
+	if (!is_directory)
+	{
+		fileName = tmpPath.filename().string();
+		dirPath = tmpPath.parent_path();
+	}
+
+	if (!boost::filesystem::exists(dirPath)) {
+		boost::filesystem::create_directory(dirPath);
+	}
+	dirPath = boost::filesystem::canonical(dirPath);
+
+	if (is_directory)
+	{
+		return string().append(dirPath.string()).append("/");
+	}
+	return string().append(dirPath.string()).append("/").append(fileName);
 }
 
 int main(int argc, char** argv) {
@@ -131,7 +189,7 @@ int main(int argc, char** argv) {
 		goto error;
 	}
 
-	inputPath = fix_path(inputPath);
+	inputPath = fix_input_path(inputPath, isDir);
 	if (0 == inputPath.length())
 	{
 		errorMessage = "invalid inputPath, please check and retry.";
@@ -141,8 +199,11 @@ int main(int argc, char** argv) {
 	if (0 == outputPath.length()) {
 		outputPath = inputPath;
 	} else {
-		outputPath = fix_path(outputPath);
+		outputPath = fix_output_path(outputPath, isDir);
 	}
+
+	printf("check before compress -> input_path_after_fix:%s.\n", inputPath.c_str());
+	printf("check before compress -> output_path_after_fix:%s.\n", outputPath.c_str());
 
 	if (isDir) {
 		compress_image_from_dir(inputPath, outputPath, quality);
