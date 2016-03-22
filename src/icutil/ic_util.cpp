@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include "boost/filesystem.hpp"
 #include "pngimage/png_image.hpp"
 #include "include/ic_image.h"
 
@@ -77,5 +78,29 @@ bool ic_compress_nine_patch_png(const char* inputFile, const char* outputFile, i
 }
 
 bool ic_compress_jpeg(const char* inputFile, const char* outputFile, int quality) {
-    return CJpegFile(inputFile, outputFile, quality);
+    bool isNeedRename = 0 == strcmp(inputFile, outputFile);
+    std::string tmpOutputFile(outputFile);
+    if (isNeedRename)
+    {
+        tmpOutputFile.append(".tmp");
+    }
+
+    int result = CJpegFile(inputFile, tmpOutputFile.c_str(), quality);
+    if(0 == result) {
+        if (isNeedRename) {
+            boost::filesystem::path destPath(outputFile);
+            boost::filesystem::path currentPath(tmpOutputFile.c_str());
+            try {
+                boost::filesystem::rename(currentPath, destPath);
+            } catch(boost::filesystem::filesystem_error e) {
+                printf("error -> %s.\n", e.what());
+                return false;
+            }
+        }
+        return true;
+    }
+
+    printf("error -> compress fail, result code is %d.\n", result);
+    
+    return false;
 }

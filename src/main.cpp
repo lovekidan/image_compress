@@ -25,22 +25,28 @@ string get_image_type_des(int type) {
 
 bool compress_image_from_file(string& inputPath, string& outputPath, int quality) {
 	IMAGE_TYPE image_type = ic_get_image_type(inputPath.c_str());
-	printf("start to compress a %s image...\n", get_image_type_des(image_type).c_str());
+	printf("===========> start to compress a %s image[%s]....\n", get_image_type_des(image_type).c_str(), inputPath.c_str());
+	bool success = false;
 	switch (image_type) {
 		case IMAGE_TYPE_NORMAL_PNG:
-		ic_compress_png(inputPath.c_str(), outputPath.c_str(), quality);
+		success = ic_compress_png(inputPath.c_str(), outputPath.c_str(), quality);
 		break;
 		case IMAGE_TYPE_APNG:
-		ic_compress_apng(inputPath.c_str(), outputPath.c_str());
+		success = ic_compress_apng(inputPath.c_str(), outputPath.c_str());
 		break;
 		case IMAGE_TYPE_JPEG:
-		ic_compress_jpeg(inputPath.c_str(), outputPath.c_str(), quality);
+		success = ic_compress_jpeg(inputPath.c_str(), outputPath.c_str(), quality);
 		break;
 		case IMAGE_TYPE_UNCOMPLIED_9PNG:
-		ic_compress_nine_patch_png(inputPath.c_str(), outputPath.c_str(), quality);
+		success = ic_compress_nine_patch_png(inputPath.c_str(), outputPath.c_str(), quality);
 		break;
 	}
-	return true;
+	if (success) {
+		printf("===========> compress success and save to [%s].\n\n", outputPath.c_str());
+	} else {
+		printf("===========> compress fail, please check and retry.\n\n");
+	}
+	return success;
 }
 
 std::vector<string> get_files_from_dir(const string& inputPath) {
@@ -61,7 +67,7 @@ string combine_file_path(const string& dir, const string& postFix, const string&
 
 bool compress_image_from_dir(string& inputPath, string& outputPath, int quality) {
 	std::vector<string> files = get_files_from_dir(inputPath);
-	string postFix = 0 != strcmp(inputPath.c_str(), outputPath.c_str()) ? "" : ".compressed";
+	string postFix; // = 0 != strcmp(inputPath.c_str(), outputPath.c_str()) ? "" : ".compressed";
 	string extension = "";
 	string baseName = "";
 	string outputFilePath = "";
@@ -202,8 +208,7 @@ int main(int argc, char** argv) {
 		outputPath = fix_output_path(outputPath, isDir);
 	}
 
-	printf("check before compress -> input_path_after_fix:%s.\n", inputPath.c_str());
-	printf("check before compress -> output_path_after_fix:%s.\n", outputPath.c_str());
+	printf("===========> paths checking............\ninputPath>>>>%s\noutputPath>>>>%s\n", inputPath.c_str(), outputPath.c_str());
 
 	if (isDir) {
 		compress_image_from_dir(inputPath, outputPath, quality);
