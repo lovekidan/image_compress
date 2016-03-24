@@ -18,6 +18,8 @@ string get_image_type_des(int type) {
 		case IMAGE_TYPE_COMPLIED_9PNG:
 		case IMAGE_TYPE_UNCOMPLIED_9PNG:
 			return "9.PNG";
+		case IMAGE_TYPE_GIF:
+			return "GIF";
 		default:
 			return "UNKNOWN";
 	}
