@@ -1,0 +1,25 @@
+language: cpp
+sudo: required
+dist: trusty
+compiler:
+- gcc
+os:
+- linux
+addons:
+apt:
+packages:
+- cmake
+before_install:
+- apt-get install opencv
+- apt-get install boost
+before_script:
+- cmake .
+script: 
+- make
+after_success:
+branches:
+  only:
+  - master
+notifications:
+env:
+  global:
