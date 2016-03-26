@@ -15,7 +15,7 @@ before_install:
 - sudo apt-get -y install libboost-all-dev
 - mkdir thirdparty && cd thirdparty 
 - git clone https://github.com/Itseez/opencv.git && cd opencv && git checkout tags/3.0.0 -b branch_3.0.0
-- cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/ -DBUILD_SHARED_LIBS=OFF ..
+- cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/ -DBUILD_SHARED_LIBS=OFF .
 - make && sudo make install
 - cd ../../
 before_script:
