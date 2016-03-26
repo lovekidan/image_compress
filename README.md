@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/chraac/image_compress.svg?branch=master)](https://travis-ci.org/chraac/image_compress)
+
 # Image_compress
 This tool intent to compress various type of image, for now it supports png apng and jpeg
 
