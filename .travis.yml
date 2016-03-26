@@ -13,6 +13,7 @@ before_install:
 - sudo apt-get -y install libopencv-dev
 - sudo apt-get -y install libboost-all-dev
 before_script:
+- cd src/mozjpeg && cmake . && cd ../../
 - cmake .
 script: 
 - make
