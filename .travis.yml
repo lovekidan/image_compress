@@ -10,8 +10,8 @@ apt:
 packages:
 - cmake
 before_install:
-- apt-get install opencv
-- apt-get install boost
+- sudo apt-get install opencv
+- sudo apt-get install boost
 before_script:
 - cmake .
 script: 
