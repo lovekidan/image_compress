@@ -20,6 +20,7 @@ before_install:
   - IMG_COMPRESS_SRC="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
   - if [ ! -d "$OCV_ROOT/.git" ]; then cd $HOME && git clone https://github.com/Itseez/opencv.git && cd opencv && git checkout tags/3.0.0 -b branch_3.0.0 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/ -DBUILD_SHARED_LIBS=OFF . && make; fi
   - cd $OCV_ROOT && sudo make install
+  - echo $IMG_COMPRESS_SRC
   - cd $IMG_COMPRESS_SRC
 before_script:
   - cd src/mozjpeg && cmake . && cd ../../
