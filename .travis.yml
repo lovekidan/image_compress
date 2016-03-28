@@ -17,7 +17,6 @@ before_install:
   - sudo apt-get -y install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
   - sudo apt-get -y install libboost-all-dev
   - IMG_COMPRESS_SRC=$(pwd)
-  - echo $IMG_COMPRESS_SRC
   - if [ ! -d "$OCV_ROOT/.git" ]; then cd $HOME && git clone https://github.com/Itseez/opencv.git && cd opencv && git checkout tags/3.0.0 -b branch_3.0.0; fi
   - if [ ! -d "$OCV_ROOT/bin" ]; then cd $OCV_ROOT && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local/ -DBUILD_SHARED_LIBS=OFF . && make; fi
   - cd $OCV_ROOT && sudo make install
