@@ -8,10 +8,11 @@ os:
 addons:
   apt:
     packages:
-      - cmake
+    - cmake
 cache:
+  apt: true
   directories:
-    - $OCV_ROOT
+  - $OCV_ROOT
 before_install:
   - sudo apt-get -y install build-essential
   - sudo apt-get -y install cmake git libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev libswscale-dev
