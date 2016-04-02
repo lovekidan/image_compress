@@ -14,10 +14,10 @@ before_install:
   - docker pull chraac/imagecompressenv:lite
   - docker run -dt --volume=.:$REPO_ROOT --name=builder chraac/imagecompressenv:lite
 before_script:
-  - docker exec builder "cd $REPO_ROOT/src/mozjpeg && cmake ."
-  - docker exec builder "cd $REPO_ROOT && cmake ."
+  - docker exec builder bash -c "cd $REPO_ROOT/src/mozjpeg && cmake ."
+  - docker exec builder bash -c "cd $REPO_ROOT && cmake ."
 script: 
-  - docker exec builder "cd $REPO_ROOT && make"
+  - docker exec builder bash -c "cd $REPO_ROOT && make"
 branches:
   only:
   - master
