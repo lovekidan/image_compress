@@ -12,13 +12,15 @@ services:
   - docker
 before_install:
   - docker pull chraac/imagecompressenv
-  - docker run -v ./:/opt/image_compress chraac/imagecompressenv
+  - docker run -v ./:$REPO_ROOT --name=builder chraac/imagecompressenv
 before_script:
-  - cd /opt/image_compress
-  - cd src/mozjpeg && cmake . && cd ../../
-  - cmake .
+  - docker exec builder "cd $REPO_ROOT/src/mozjpeg && cmake ."
+  - docker exec builder "cd $REPO_ROOT && cmake ."
 script: 
-  - make
+  - docker exec builder "cd $REPO_ROOT && make"
 branches:
   only:
   - master
+env:
+  global:
+  - REPO_ROOT=/opt/image_compress
