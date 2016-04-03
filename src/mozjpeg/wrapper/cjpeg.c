@@ -855,8 +855,9 @@ int CJpegFile(const char *fileName, const char *outName, int quality)
         "cjpeg",
         "-quality",
         strQuality,
-        input,
+        "-outfile",
         output,
+        input,
     };
 
     int res = cjpegMain(sizeof(argvCjpeg) / sizeof(argvCjpeg[0]), argvCjpeg);

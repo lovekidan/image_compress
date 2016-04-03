@@ -51,80 +51,80 @@ namespace
 }
 
 
-PicOpt::Optimize9Grid::Optimize9Grid()
+PicOpt::Optimize9Patch::Optimize9Patch()
     : max_center_psnr_(0)
 	, center_width_(1)
 {
 }
 
 
-PicOpt::Optimize9Grid::~Optimize9Grid()
+PicOpt::Optimize9Patch::~Optimize9Patch()
 {
 }
 
-void PicOpt::Optimize9Grid::SetMaxCenterPSNR(double psnr)
+void PicOpt::Optimize9Patch::SetMaxCenterPSNR(double psnr)
 {
 	max_center_psnr_ = psnr;
 }
 
-void PicOpt::Optimize9Grid::SetCenterRectWidth(int width)
+void PicOpt::Optimize9Patch::SetCenterRectWidth(int width)
 {
 	center_width_ = width;
 }
 
-bool PicOpt::Optimize9Grid::Optimize(const Mat &src,
-	const Vec4i &grid,
+bool PicOpt::Optimize9Patch::Optimize(const Mat &src,
+	const Vec4i &patch,
 	Mat &new_img,
-	Vec4i &new_grid)
+	Vec4i &new_patch)
 {
 	using namespace Utility;
 
-	GlobalConfig &config = GlobalConfig::GetInstance();
+	NinePatchConfig &config = NinePatchConfig::GetInstance();
 	bool b_ret = false;
 	new_img = src;
 	Mat out;
 	Vec2i new_vec;
-	Vec4i tmp_grid = new_grid = grid;
-	if (!OptimizeOneDirection(true, src, Vec2i(grid[0], grid[2]), out, new_vec))
+	Vec4i tmp_patch = new_patch = patch;
+	if (!OptimizeOneDirection(true, src, Vec2i(patch[0], patch[2]), out, new_vec))
 	{
 		return false;
 	}
 
-	tmp_grid[0] = new_vec[0];
-	tmp_grid[2] = new_vec[1];
-	if (CheckOptResult(src, grid, out, tmp_grid, config.GetOutputQuality()))
+	tmp_patch[0] = new_vec[0];
+	tmp_patch[2] = new_vec[1];
+	if (CheckOptResult(src, patch, out, tmp_patch, config.GetOutputQuality()))
 	{
-		new_grid = tmp_grid;
+		new_patch = tmp_patch;
 		new_img = out;
 		b_ret = true;
 	}
 
 
-	tmp_grid = new_grid;
-	if (!OptimizeOneDirection(false, new_img, Vec2i(grid[1], grid[3]), out, new_vec))
+	tmp_patch = new_patch;
+	if (!OptimizeOneDirection(false, new_img, Vec2i(patch[1], patch[3]), out, new_vec))
 	{
 		return b_ret;
 	}
 
-	tmp_grid[1] = new_vec[0];
-	tmp_grid[3] = new_vec[1];
-	if (CheckOptResult(src, grid, out, tmp_grid, config.GetOutputQuality()))
+	tmp_patch[1] = new_vec[0];
+	tmp_patch[3] = new_vec[1];
+	if (CheckOptResult(src, patch, out, tmp_patch, config.GetOutputQuality()))
 	{
-		new_grid = tmp_grid;
+		new_patch = tmp_patch;
 		new_img = out;
 		b_ret = true;
 	}
 	return b_ret;
 }
 
-bool PicOpt::Optimize9Grid::OptimizeOneDirection(bool is_horizontal,
+bool PicOpt::Optimize9Patch::OptimizeOneDirection(bool is_horizontal,
 	const cv::Mat &img,
-	const cv::Vec2i &grid,
+	const cv::Vec2i &patch,
 	cv::Mat &new_img,
-	cv::Vec2i &new_grid)
+	cv::Vec2i &new_patch)
 {
 	int end_pos = is_horizontal ? img.cols : img.rows;
-	int border_sum = grid[1] + grid[0];
+	int border_sum = patch[1] + patch[0];
 	int target_len = end_pos - border_sum;
 	if (target_len < 2)
 	{
@@ -143,20 +143,20 @@ bool PicOpt::Optimize9Grid::OptimizeOneDirection(bool is_horizontal,
 	cv::Rect resize_rect(Point(), gradient.size());
 	if (is_horizontal)
 	{
-		resize_rect.x = grid[0];
+		resize_rect.x = patch[0];
 		resize_rect.width = target_len;
 	}
 	else
 	{
-		resize_rect.y = grid[0];
+		resize_rect.y = patch[0];
 		resize_rect.height = target_len;
 	}
 
 	Mat abs_grad;
 	convertScaleAbs(gradient, abs_grad);
-	Mat &grad_center = abs_grad(resize_rect);
+	const Mat &grad_center = abs_grad(resize_rect);
 
-	uint32_t output_quality = GlobalConfig::GetInstance().GetOutputQuality();
+	uint32_t output_quality = NinePatchConfig::GetInstance().GetOutputQuality();
 	if (target_len == 2)
 	{   // for small picture
 		if (!NeedOptSmallSize(grad_center, is_horizontal))
@@ -165,11 +165,11 @@ bool PicOpt::Optimize9Grid::OptimizeOneDirection(bool is_horizontal,
 		}
 	}
 
-	new_img = ResizeImageRect(img, resize_rect, is_horizontal, new_grid);
+	new_img = ResizeImageRect(img, resize_rect, is_horizontal, new_patch);
 	return true;
 }
 
-bool PicOpt::Optimize9Grid::NeedOptSmallSize(const Mat &grad_center, bool is_horizontal)
+bool PicOpt::Optimize9Patch::NeedOptSmallSize(const Mat &grad_center, bool is_horizontal)
 {
 	if (is_horizontal)
 	{
@@ -185,10 +185,10 @@ bool PicOpt::Optimize9Grid::NeedOptSmallSize(const Mat &grad_center, bool is_hor
 	}
 }
 
-Mat PicOpt::Optimize9Grid::ResizeImageRect(const Mat &img,
+Mat PicOpt::Optimize9Patch::ResizeImageRect(const Mat &img,
 	const cv::Rect &rc,
 	bool is_hrz,
-	Vec2i &new_grid)
+	Vec2i &new_patch)
 {
 	if (rc.area() <= 0)
 	{
@@ -217,8 +217,8 @@ Mat PicOpt::Optimize9Grid::ResizeImageRect(const Mat &img,
 		CopyImageRect(img, left, out, left);
 		CopyImageRect(img, center, out, out_center);
 		CopyImageRect(img, right, out, out_right);
-		new_grid[0] = left.width;
-		new_grid[1] = right.width;
+		new_patch[0] = left.width;
+		new_patch[1] = right.width;
 		return out;
 	}
 	else
@@ -242,8 +242,8 @@ Mat PicOpt::Optimize9Grid::ResizeImageRect(const Mat &img,
 		CopyImageRect(img, top, out, top);
 		CopyImageRect(img, center, out, out_center);
 		CopyImageRect(img, bottom, out, out_bottom);
-		new_grid[0] = top.height;
-		new_grid[1] = bottom.height;
+		new_patch[0] = top.height;
+		new_patch[1] = bottom.height;
 		return out;
 	}
 }

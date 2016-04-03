@@ -4,23 +4,23 @@
 using namespace cv;
 using namespace std;
 
-PicOpt::Gen9Grid::Gen9Grid()
+PicOpt::Gen9Patch::Gen9Patch()
 {
 }
 
 
-PicOpt::Gen9Grid::~Gen9Grid()
+PicOpt::Gen9Patch::~Gen9Patch()
 {
 }
 
-bool PicOpt::Gen9Grid::Get9GirdLines(const Mat &src, Vec4i &out)
+bool PicOpt::Gen9Patch::Get9PatchLines(const Mat &src, Vec4i &out)
 {
 	int left = src.cols / 2 - 1;
 	int top = src.rows / 2 - 1;
-	return Get9GirdLinesWithOldGrid(src, Vec4i(left, top, left, top), out);
+	return Get9PatchLinesWithOldPatch(src, Vec4i(left, top, left, top), out);
 }
 
-bool PicOpt::Gen9Grid::Get9GirdLinesWithOldGrid(const Mat &src, const Vec4i &in, Vec4i &out)
+bool PicOpt::Gen9Patch::Get9PatchLinesWithOldPatch(const Mat &src, const Vec4i &in, Vec4i &out)
 {
 	Mat src_blend = (src.channels() == 4) ? Utility::AlphaBlendWithGray(src) : src;
 	Mat src_gray;
@@ -39,7 +39,7 @@ bool PicOpt::Gen9Grid::Get9GirdLinesWithOldGrid(const Mat &src, const Vec4i &in,
 	return true;
 }
 
-bool PicOpt::Gen9Grid::GetEdgeLineSobel(const Mat &src, bool is_horizontal, Vec2i &out)
+bool PicOpt::Gen9Patch::GetEdgeLineSobel(const Mat &src, bool is_horizontal, Vec2i &out)
 {
 	int x_order = is_horizontal ? 1 : 0;
 	int y_order = !is_horizontal ? 1 : 0;

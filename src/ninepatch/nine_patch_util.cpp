@@ -3,8 +3,7 @@
 #include <functional>
 #include <fstream>
 #include <locale>
-//#include <codecvt>
-#include <exception>
+#include "include/ic_exception.h"
 #include "../pngimage/png_image.hpp"
 #include "../libpng/png.h"
 #include "nine_patch_global_config.hpp"
@@ -48,12 +47,12 @@ namespace
 		return rc.br().y;
 	}
 
-	Vec4i GetGridInRect(const cv::Rect &rc, const Vec4i &grid)
+	Vec4i GetPatchInRect(const cv::Rect &rc, const Vec4i &patch)
 	{
-		return Vec4i((std::max)(rc.x, grid[0]),
-			(std::max)(rc.y, grid[1]),
-			(std::min)(rc.x + rc.width, grid[2]),
-			(std::min)(rc.y + rc.height, grid[3]));
+		return Vec4i((std::max)(rc.x, patch[0]),
+			(std::max)(rc.y, patch[1]),
+			(std::min)(rc.x + rc.width, patch[2]),
+			(std::min)(rc.y + rc.height, patch[3]));
 	}
 
 	bool GetBlackLine(const Mat &edge, Vec2i &line)
@@ -229,22 +228,22 @@ Vec4i PicOpt::Utility::GetMinLine(Vec4i left, Vec4i right, bool is_horizontal)
 	return ret;
 }
 
-Mat PicOpt::Utility::DrawGridOnPic(const Mat &src, const Vec4i &grid)
+Mat PicOpt::Utility::DrawPatchOnPic(const Mat &src, const Vec4i &patch)
 {
 	Mat out;
 	src.copyTo(out);
-	auto &size = out.size();
-	Vec4i grid_fix = grid;
-	grid_fix[2] = size.width - grid[2] - 1;
-	grid_fix[3] = size.height - grid[3] - 1;
-	line(out, Point(grid_fix[0], 0), Point(grid_fix[0], size.height), Utility::RandomColor(), 1, LINE_4);
-	line(out, Point(grid_fix[2], 0), Point(grid_fix[2], size.height), Utility::RandomColor(), 1, LINE_4);
-	line(out, Point(0, grid_fix[1]), Point(size.width, grid_fix[1]), Utility::RandomColor(), 1, LINE_4);
-	line(out, Point(0, grid_fix[3]), Point(size.width, grid_fix[3]), Utility::RandomColor(), 1, LINE_4);
+	const auto &size = out.size();
+	Vec4i patch_fix = patch;
+	patch_fix[2] = size.width - patch[2] - 1;
+	patch_fix[3] = size.height - patch[3] - 1;
+	line(out, Point(patch_fix[0], 0), Point(patch_fix[0], size.height), Utility::RandomColor(), 1, LINE_4);
+	line(out, Point(patch_fix[2], 0), Point(patch_fix[2], size.height), Utility::RandomColor(), 1, LINE_4);
+	line(out, Point(0, patch_fix[1]), Point(size.width, patch_fix[1]), Utility::RandomColor(), 1, LINE_4);
+	line(out, Point(0, patch_fix[3]), Point(size.width, patch_fix[3]), Utility::RandomColor(), 1, LINE_4);
 	return out;
 }
 
-Mat PicOpt::Utility::Generate9GridPic(const Mat &src, const Vec4i &grid)
+Mat PicOpt::Utility::Generate9PatchPic(const Mat &src, const Vec4i &patch)
 {
 	Mat out;
 	if (src.channels() == 4)
@@ -262,99 +261,99 @@ Mat PicOpt::Utility::Generate9GridPic(const Mat &src, const Vec4i &grid)
 	auto size_9gird = out.size();
 	size_9gird.width -= 1;
 	size_9gird.height -= 1;
-	Vec4i grid_fix;
-	grid_fix[0] = grid[0] + 1;
-	grid_fix[1] = grid[1] + 1;
-	grid_fix[2] = size_9gird.width - grid[2] - 1;
-	grid_fix[3] = size_9gird.height - grid[3] - 1;
-	line(out, Point(grid_fix[0], 0), Point(grid_fix[2], 0), kBlackColor, 1, LINE_4);
-	line(out, Point(grid_fix[0], size_9gird.height), Point(grid_fix[2], size_9gird.height), kBlackColor, 1, LINE_4);
-	line(out, Point(0, grid_fix[1]), Point(0, grid_fix[3]), kBlackColor, 1, LINE_4);
-	line(out, Point(size_9gird.width, grid_fix[1]), Point(size_9gird.width, grid_fix[3]), kBlackColor, 1, LINE_4);
+	Vec4i patch_fix;
+	patch_fix[0] = patch[0] + 1;
+	patch_fix[1] = patch[1] + 1;
+	patch_fix[2] = size_9gird.width - patch[2] - 1;
+	patch_fix[3] = size_9gird.height - patch[3] - 1;
+	line(out, Point(patch_fix[0], 0), Point(patch_fix[2], 0), kBlackColor, 1, LINE_4);
+	line(out, Point(patch_fix[0], size_9gird.height), Point(patch_fix[2], size_9gird.height), kBlackColor, 1, LINE_4);
+	line(out, Point(0, patch_fix[1]), Point(0, patch_fix[3]), kBlackColor, 1, LINE_4);
+	line(out, Point(size_9gird.width, patch_fix[1]), Point(size_9gird.width, patch_fix[3]), kBlackColor, 1, LINE_4);
 
 	return out;
 }
 
-Mat PicOpt::Utility::StretchPicWith9Grid(const Mat &src, const Vec4i &grid, const Size &rc_dst)
+Mat PicOpt::Utility::StretchPicWith9Patch(const Mat &src, const Vec4i &patch, const Size &rc_dst)
 {
 	cv::Rect rc_src(Point(), src.size());
-	cv::Rect grids[9];
-	Get9GridRect(rc_src, grid, grids);
-	cv::Rect dst_grids[9];
-	Get9GridRect(cv::Rect(Point(), rc_dst), grid, dst_grids);
+	cv::Rect patchs[9];
+	Get9PatchRect(rc_src, patch, patchs);
+	cv::Rect dst_patchs[9];
+	Get9PatchRect(cv::Rect(Point(), rc_dst), patch, dst_patchs);
 
 	Mat dst(rc_dst, src.type());
 	for (size_t i = 0; i < 9; ++i)
 	{
-		if (grids[i].area() == 0 || dst_grids[i].area() == 0)
+		if (patchs[i].area() == 0 || dst_patchs[i].area() == 0)
 		{
 			continue;
 		}
 
-		Mat &src_part = src(grids[i]);
-		Mat &dst_part = dst(dst_grids[i]);
+		const Mat &src_part = src(patchs[i]);
+		const Mat &dst_part = dst(dst_patchs[i]);
 		resize(src_part, dst_part, dst_part.size(), 0, 0, INTER_NEAREST);
 	}
 
 	return dst;
 }
 
-void PicOpt::Utility::Get9GridRect(const Rect &outer, const Vec4i &grid, cv::Rect *grids)
+void PicOpt::Utility::Get9PatchRect(const Rect &outer, const Vec4i &patch, cv::Rect *patchs)
 {
-	Vec4i grid_fix = grid;
-	int center_width = outer.width - grid_fix[0] - grid_fix[2];
-	int center_height = outer.height - grid_fix[1] - grid_fix[3];
+	Vec4i patch_fix = patch;
+	int center_width = outer.width - patch_fix[0] - patch_fix[2];
+	int center_height = outer.height - patch_fix[1] - patch_fix[3];
 
 	// top
-	grids[0].x = outer.x;
-	grids[0].y = outer.y;
-	grids[0].width = grid_fix[0];
-	grids[0].height = grid_fix[1];
+	patchs[0].x = outer.x;
+	patchs[0].y = outer.y;
+	patchs[0].width = patch_fix[0];
+	patchs[0].height = patch_fix[1];
 
-	grids[1].x = RectRight(grids[0]);
-	grids[1].y = outer.y;
-	grids[1].width = center_width;
-	grids[1].height = grid_fix[1];
+	patchs[1].x = RectRight(patchs[0]);
+	patchs[1].y = outer.y;
+	patchs[1].width = center_width;
+	patchs[1].height = patch_fix[1];
 
-	grids[2].x = RectRight(grids[1]);
-	grids[2].y = outer.y;
-	grids[2].width = grid_fix[2];
-	grids[2].height = grid_fix[1];
+	patchs[2].x = RectRight(patchs[1]);
+	patchs[2].y = outer.y;
+	patchs[2].width = patch_fix[2];
+	patchs[2].height = patch_fix[1];
 
 	// center
-	grids[3].x = outer.x;
-	grids[3].y = RectBottom(grids[0]);
-	grids[3].width = grid_fix[0];
-	grids[3].height = center_height;
+	patchs[3].x = outer.x;
+	patchs[3].y = RectBottom(patchs[0]);
+	patchs[3].width = patch_fix[0];
+	patchs[3].height = center_height;
 
-	grids[4].x = RectRight(grids[3]);
-	grids[4].y = RectBottom(grids[0]);
-	grids[4].width = center_width;
-	grids[4].height = center_height;
+	patchs[4].x = RectRight(patchs[3]);
+	patchs[4].y = RectBottom(patchs[0]);
+	patchs[4].width = center_width;
+	patchs[4].height = center_height;
 
-	grids[5].x = RectRight(grids[4]);
-	grids[5].y = RectBottom(grids[0]);
-	grids[5].width = grid_fix[2];
-	grids[5].height = center_height;
+	patchs[5].x = RectRight(patchs[4]);
+	patchs[5].y = RectBottom(patchs[0]);
+	patchs[5].width = patch_fix[2];
+	patchs[5].height = center_height;
 
 	// bottom
-	grids[6].x = outer.x;
-	grids[6].y = RectBottom(grids[3]);
-	grids[6].width = grid_fix[0];
-	grids[6].height = grid_fix[3];
+	patchs[6].x = outer.x;
+	patchs[6].y = RectBottom(patchs[3]);
+	patchs[6].width = patch_fix[0];
+	patchs[6].height = patch_fix[3];
 
-	grids[7].x = RectRight(grids[6]);
-	grids[7].y = RectBottom(grids[3]);
-	grids[7].width = center_width;
-	grids[7].height = grid_fix[3];
+	patchs[7].x = RectRight(patchs[6]);
+	patchs[7].y = RectBottom(patchs[3]);
+	patchs[7].width = center_width;
+	patchs[7].height = patch_fix[3];
 
-	grids[8].x = RectRight(grids[7]);
-	grids[8].y = RectBottom(grids[3]);
-	grids[8].width = grid_fix[2];
-	grids[8].height = grid_fix[3];
+	patchs[8].x = RectRight(patchs[7]);
+	patchs[8].y = RectBottom(patchs[3]);
+	patchs[8].width = patch_fix[2];
+	patchs[8].height = patch_fix[3];
 }
 
-bool PicOpt::Utility::Get9GridParamFromPic(const Mat &src, Vec4i &grid, Vec4i &padding, Mat *img)
+bool PicOpt::Utility::Get9PatchParamFromPic(const Mat &src, Vec4i &patch, Vec4i &padding, Mat *img)
 {
 	if (src.channels() != 4)
 	{   // not contain alpha
@@ -376,10 +375,10 @@ bool PicOpt::Utility::Get9GridParamFromPic(const Mat &src, Vec4i &grid, Vec4i &p
 			return false;
 		}
 
-		/*grid[1] = std::min(left_vec[0], right_vec[0]);
-		grid[3] = std::min(left_vec[1], right_vec[1]);*/
-		grid[1] = left_vec[0];
-		grid[3] = left_vec[1];
+		/*patch[1] = std::min(left_vec[0], right_vec[0]);
+		patch[3] = std::min(left_vec[1], right_vec[1]);*/
+		patch[1] = left_vec[0];
+		patch[3] = left_vec[1];
 		padding[1] = right_vec[0];
 		padding[3] = right_vec[1];
 	}
@@ -398,25 +397,25 @@ bool PicOpt::Utility::Get9GridParamFromPic(const Mat &src, Vec4i &grid, Vec4i &p
 			return false;
 		}
 
-		/*grid[0] = std::min(top_vec[0], bottom_vec[0]);
-		grid[2] = std::min(top_vec[1], bottom_vec[1]);*/
-		grid[0] = top_vec[0];
-		grid[2] = top_vec[1];
+		/*patch[0] = std::min(top_vec[0], bottom_vec[0]);
+		patch[2] = std::min(top_vec[1], bottom_vec[1]);*/
+		patch[0] = top_vec[0];
+		patch[2] = top_vec[1];
 		padding[0] = bottom_vec[0];
 		padding[2] = bottom_vec[1];
 	}
 
 	// for inner pic
-	grid[0] -= 1;
-	grid[1] -= 1;
-	grid[2] -= 1;
-	grid[3] -= 1;
+	patch[0] -= 1;
+	patch[1] -= 1;
+	patch[2] -= 1;
+	patch[3] -= 1;
 	padding[0] -= 1;
 	padding[1] -= 1;
 	padding[2] -= 1;
 	padding[3] -= 1;
 
-    const GlobalConfig &config = GlobalConfig::GetInstance();
+    const NinePatchConfig &config = NinePatchConfig::GetInstance();
     if (img){
 		cv::Rect rc(Point(1, 1), src.size());
 		rc.width -= 2;
@@ -471,68 +470,99 @@ bool PicOpt::Utility::ReadImage(ImageDesc &img){
 uint64_t PicOpt::Utility::WriteToPngFile(const ImageDesc &img_out){
 	PngImage pngImage;
 	pngImage.read_png_from_Mat(img_out.image);
-	if(!pngImage.write_png(img_out.name))
-		throw exception("Fail! exception converting image to PNG!");
+	if(!pngImage.write_png(img_out.name)) {
+		throw ICException("Fail! exception converting image to PNG!");
+	}
 	return boost::filesystem::file_size(boost::filesystem::path(img_out.name));
 }
 
 uint64_t PicOpt::Utility::WriteToCompliedNinePngFile(const ImageDesc &img_out){
 	PngImage pngImage;
 	pngImage.read_png_from_Mat(img_out.image);
-	pngImage.set_npTc_info(img_out.grid, img_out.padding);
-	if (!pngImage.write_png(img_out.name))
-		throw exception("Fail! exception converting image to PNG!");
+	pngImage.set_npTc_info(img_out.patch, img_out.padding);
+	if (!pngImage.write_png(img_out.name)) {
+		throw ICException("Fail! exception converting image to PNG!");
+	}
 	return boost::filesystem::file_size(boost::filesystem::path(img_out.name));
 }
 
 uint64_t PicOpt::Utility::WriteToUnCompliedNinePngFile(const ImageDesc &img_out){
     PngImage pngImage;
     pngImage.read_png_from_Mat(img_out.image);
-    pngImage.set_npTc_info(img_out.grid, img_out.padding);
+    pngImage.set_npTc_info(img_out.patch, img_out.padding);
     pngImage.set_de9patch();
-    if (!pngImage.write_png(img_out.name))
-        throw exception("Fail! exception converting image to PNG!");
+    if (!pngImage.write_png(img_out.name)) {
+    	throw ICException("Fail! exception converting image to PNG!");
+    }
     return boost::filesystem::file_size(boost::filesystem::path(img_out.name));
 }
 
-std::wstring PicOpt::Utility::Utf8ToUtf16(const std::string &str)
-{
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
-	return utf16conv.from_bytes(str);
-}
+// std::wstring PicOpt::Utility::Utf8ToUtf16(const std::string &str)
+// {
+// 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
+// 	return utf16conv.from_bytes(str);
+// }
 
-std::string PicOpt::Utility::Utf16ToUtf8(const std::wstring &str)
-{
-	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
-	return utf16conv.to_bytes(str);
-}
+// std::string PicOpt::Utility::Utf16ToUtf8(const std::wstring &str)
+// {
+// 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t> utf16conv;
+// 	return utf16conv.to_bytes(str);
+// }
 
-boost::filesystem::path PicOpt::Utility::MakeRelative(boost::filesystem::path path, boost::filesystem::path file)
+boost::filesystem::path PicOpt::Utility::MakeRelative(boost::filesystem::path from, boost::filesystem::path to)
 {
-	typedef std::wstring::value_type WideChar;
-	std::vector<WideChar> buffer(32768);
-	auto CanonicalizePath = [&buffer](const std::wstring &path)->std::wstring
-	{
-		::PathCanonicalizeW(buffer.data(), path.c_str());
-		return std::wstring(buffer.data());
-	};
+	// typedef std::wstring::value_type WideChar;
+	// std::vector<WideChar> buffer(32768);
+	// auto CanonicalizePath = [&buffer](const std::wstring &path)->std::wstring
+	// {
+	// 	::PathCanonicalizeW(buffer.data(), path.c_str());
+	// 	return std::wstring(buffer.data());
+	// };
 
-	path = boost::filesystem::complete(path);
-	file = boost::filesystem::complete(file);
-	std::wstring path_name = CanonicalizePath(Utf8ToUtf16(path.file_string()));
-	std::wstring file_name = CanonicalizePath(Utf8ToUtf16(file.file_string()));
-	int ret = ::PathRelativePathToW(buffer.data(),
-		path_name.c_str(),
-		FILE_ATTRIBUTE_DIRECTORY,
-		file_name.c_str(),
-		FILE_ATTRIBUTE_NORMAL);
-	return boost::filesystem::path(Utf16ToUtf8(std::wstring(buffer.data())));
+	// path = boost::filesystem::complete(path);
+	// file = boost::filesystem::complete(file);
+	// std::wstring path_name = CanonicalizePath(Utf8ToUtf16(path.file_string()));
+	// std::wstring file_name = CanonicalizePath(Utf8ToUtf16(file.file_string()));
+	// int ret = ::PathRelativePathToW(buffer.data(),
+	// 	path_name.c_str(),
+	// 	FILE_ATTRIBUTE_DIRECTORY,
+	// 	file_name.c_str(),
+	// 	FILE_ATTRIBUTE_NORMAL);
+	// return boost::filesystem::path(Utf16ToUtf8(std::wstring(buffer.data())));
+	
+	// Start at the root path and while they are the same then do nothing then when they first
+   // diverge take the remainder of the two path and replace the entire from path with ".."
+   // segments.
+   boost::filesystem::path::const_iterator fromIter = from.begin();
+   boost::filesystem::path::const_iterator toIter = to.begin();
+
+   // Loop through both
+   while (fromIter != from.end() && toIter != to.end() && (*toIter) == (*fromIter))
+   {
+      ++toIter;
+      ++fromIter;
+   }
+
+   boost::filesystem::path finalPath;
+   while (fromIter != from.end())
+   {
+      finalPath /= "..";
+      ++fromIter;
+   }
+
+   while (toIter != to.end())
+   {
+      finalPath /= *toIter;
+      ++toIter;
+   }
+
+   return finalPath;
 }
 
 bool PicOpt::Utility::CheckOptResult(const cv::Mat &org,
-	const cv::Vec4i &org_grid,
+	const cv::Vec4i &org_patch,
 	const cv::Mat &opt,
-	const cv::Vec4i &opt_grid,
+	const cv::Vec4i &opt_patch,
 	uint32_t quality)
 {
 	Size input_size = org.size();
@@ -541,8 +571,8 @@ bool PicOpt::Utility::CheckOptResult(const cv::Mat &org,
 	stretch_size.height = (std::max)(input_size.height, stretch_size.height) * 2;
 	Mat stretch_img = AlphaBlendWithGray(org);
 	Mat opt_stretch_img = AlphaBlendWithGray(opt);
-	stretch_img = StretchPicWith9Grid(stretch_img, org_grid, stretch_size);
-	opt_stretch_img = StretchPicWith9Grid(opt_stretch_img, opt_grid, stretch_size);
+	stretch_img = StretchPicWith9Patch(stretch_img, org_patch, stretch_size);
+	opt_stretch_img = StretchPicWith9Patch(opt_stretch_img, opt_patch, stretch_size);
 
 	if (quality < 100)
 	{
