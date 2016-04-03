@@ -15,6 +15,7 @@ ENDIF()
 
 # set opencv config
 SET(OpenCV_STATIC ON)
+SET(BUILD_WITH_STATIC_CRT ON)
 
 # find opencv package
 FIND_PACKAGE(OpenCV REQUIRED)
