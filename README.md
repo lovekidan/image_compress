@@ -14,5 +14,5 @@ This tool intent to compress various type of image, for now it supports png apng
 
 ## step2:config boost environment
 ###a) download the boost-1.57 source code for linux;
-###b) build and install opencv in your machine by "./bootstrap.sh" and "./b2" and "sudo ./b2 install";
+###b) build and install boost in your machine by "./bootstrap.sh" and "./b2" and "sudo ./b2 install";
 
