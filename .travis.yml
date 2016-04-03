@@ -1,0 +1,26 @@
+language: cpp
+sudo: required
+compiler:
+  - gcc
+os:
+  - linux
+addons:
+  apt:
+    packages:
+    - cmake
+services:
+  - docker
+before_install:
+  - docker pull chraac/imagecompressenv:lite
+  - docker run -dt --volume=$(pwd):$REPO_ROOT --name=builder chraac/imagecompressenv:lite
+before_script:
+  - docker exec builder bash -c "cd $REPO_ROOT/src/mozjpeg && cmake ."
+  - docker exec builder bash -c "cd $REPO_ROOT && cmake ."
+script: 
+  - docker exec builder bash -c "cd $REPO_ROOT && make"
+branches:
+  only:
+  - master
+env:
+  global:
+  - REPO_ROOT=/opt/image_compress
